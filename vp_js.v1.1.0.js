@@ -99,32 +99,27 @@
      * @return {Bool}
      * @public
      */
-    vpJS.request = function(iframeId, action, embedId, parameter1, parameter2) {
-        if (typeof players[embedId] == 'undefined') {
-        // an embedded player is only added to the players array once a ready message is received from it, so it's not yet ready
-            return false;
-        }
-        
+    vpJS.request = function(iframeId, functionName, functionParameter, callbackName) {
         if (typeof JSON.stringify !== 'function') {
         // it is not possible to send the message without JSON support
             return false;
         }
         
+        var iframe = document.getElementById(iframeId);
+        if (iframe == null) {
+        // iframe element to send the message to can not be found - perhaps not been added to page, or invalid id, or lazy-loaded and not been played yet
+            return false;
+        }
+        
         // build the message as an object which will then be sent JSON-encoded
         var messageObject = {};
-        messageObject.action = action;
-        messageObject.embedId = embedId;
-        messageObject.parameter1 = typeof parameter1 !== 'undefined' ? parameter1 : null;
-        messageObject.parameter2 = typeof parameter2 !== 'undefined' ? parameter2 : null;
-        
+        messageObject.functionName = functionName;
+        messageObject.functionParameter = typeof functionParameter !== 'undefined' ? functionParameter : null;
+        messageObject.callbackName = typeof callbackName !== 'undefined' ? callbackName : null;
         var message = JSON.stringify(messageObject);
-        
-        var iframe = document.getElementById(iframeId);
- 
+              
         // send the message
         iframe.contentWindow.postMessage(message, iframeDomain);
-        
-        return true;
     };
     
     init();
